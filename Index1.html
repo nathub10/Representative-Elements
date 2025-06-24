@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Representative Elements Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url('https://img.freepik.com/free-photo/abstract-blur-background_1127-3400.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      overflow-x: hidden;
+    }
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    h1, h2, h3 {
+      text-align: center;
+    }
+    .question {
+      margin: 20px 0;
+    }
+    .options button, .restart-btn, .start-btn {
+      display: block;
+      margin: 10px auto;
+      padding: 10px;
+      width: 80%;
+      border: none;
+      background-color: #3498db;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .options button:hover, .restart-btn:hover, .start-btn:hover {
+      background-color: #2980b9;
+    }
+    #score {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    .ribbon {
+      width: 15px;
+      height: 15px;
+      background-color: red;
+      position: fixed;
+      top: 0;
+      left: 50%;
+      border-radius: 50%;
+      animation: fall 5s linear infinite;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-100px); opacity: 1; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+    #timer {
+      text-align: center;
+      font-size: 18px;
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    #answers {
+      margin-top: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    #answers ul {
+      list-style: none;
+      padding: 0;
+    }
+    #answers li {
+      margin-bottom: 10px;
+    }
+    #feedback {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .rules {
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 10px;
+    }
+      .curl-page {
+      animation: pageCurl 1s ease;
+    }
+
+    @keyframes pageCurl {
+      0% {
+        transform: rotateY(0deg);
+        transform-origin: left center;
+      }
+      100% {
+        transform: rotateY(-5deg);
+        transform-origin: left center;
+      }
+    }  
+
+    .difficulty {
+      font-size: 14px;
+      text-align: right;
+      color: #888;
+    }
+</style>
+</head>
+<body>
+  <audio id="bgMusic" loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="clapSound">
+    <source src="https://www.soundjay.com/human/applause-8.mp3" type="audio/mpeg">
+  </audio>
+  <div class="container">
+    <p style='text-align:center; font-weight:bold;'>Made by: Shrey Srivastava, XI-A</p>
+    <h1>Class 11 Quiz: Representative Elements</h1>
+    <div class="rules">
+      <h3>Quiz Rules:</h3>
+      <ul>
+        <li>The quiz contains 25 multiple-choice questions.</li>
+        <li>You have 15 seconds to answer each question.</li>
+        <li>One correct option per question.</li>
+        <li>Score will be shown at the end along with correct answers.</li>
+      </ul>
+    </div>
+    <div id="levelSelection">
+      <h3 style='text-align:center;'>Choose Difficulty Level</h3>
+      <button class="start-btn" onclick="selectLevel('easy')">Easy</button>
+      <button class="start-btn" onclick="selectLevel('hard')">Hard</button>
+    </div>
+    <div id="timer"></div>
+    <div id="quiz" class="page"></div>
+    <div id="score"></div>
+    <div id="answers"></div>
+    <div id="feedback"></div>
+    <button class="restart-btn" onclick="restartQuiz()" style="display:none">Restart Quiz</button>
+  </div>
+
+  <script>
+    let easyQuestions = [
+  { q: "Which group is known as alkali metals?", a: ["Group 1", "Group 2", "Group 13", "Group 17"], correct: 0 },
+  { q: "What is the electronic configuration of sodium (Na)?", a: ["2, 8, 2", "2, 8, 1", "2, 8, 3", "2, 7, 2"], correct: 1 },
+  { q: "Which of the following is a noble gas?", a: ["Oxygen", "Nitrogen", "Neon", "Fluorine"], correct: 2 },
+  { q: "The valency of magnesium is:", a: ["1", "2", "3", "4"], correct: 1 },
+  { q: "Halogens belong to which group?", a: ["Group 15", "Group 16", "Group 17", "Group 18"], correct: 2 },
+  { q: "Which element is a metalloid?", a: ["Silicon", "Sodium", "Chlorine", "Calcium"], correct: 0 },
+  { q: "Which element is most reactive in Group 1?", a: ["Sodium", "Lithium", "Potassium", "Cesium"], correct: 3 },
+  { q: "Which of the following is a p-block element?", a: ["Magnesium", "Calcium", "Aluminum", "Sodium"], correct: 2 },
+  { q: "Which group contains the least reactive elements?", a: ["Group 1", "Group 2", "Group 17", "Group 18"], correct: 3 },
+  { q: "Which of the following is an alkaline earth metal?", a: ["Sodium", "Potassium", "Calcium", "Lithium"], correct: 2 },
+  { q: "The element with atomic number 7 is:", a: ["Nitrogen", "Oxygen", "Carbon", "Neon"], correct: 0 },
+  { q: "Helium belongs to which group?", a: ["Group 1", "Group 17", "Group 18", "Group 2"], correct: 2 },
+  { q: "Which of these has 3 valence electrons?", a: ["Carbon", "Boron", "Oxygen", "Nitrogen"], correct: 1 },
+  { q: "Element with configuration 2,8,7 is:", a: ["Oxygen", "Chlorine", "Sodium", "Calcium"], correct: 1 },
+  { q: "Metals are usually:", a: ["Good conductors", "Brittle", "Non-malleable", "Poor conductors"], correct: 0 },
+  { q: "Which element has highest electronegativity?", a: ["Oxygen", "Chlorine", "Fluorine", "Nitrogen"], correct: 2 },
+  { q: "Group 2 elements are also known as:", a: ["Halogens", "Alkali metals", "Noble gases", "Alkaline earth metals"], correct: 3 },
+  { q: "Element with atomic number 1 is:", a: ["Oxygen", "Hydrogen", "Helium", "Nitrogen"], correct: 1 },
+  { q: "Which element is a non-metal?", a: ["Aluminum", "Chlorine", "Magnesium", "Zinc"], correct: 1 },
+  { q: "Atomic number of Fluorine is:", a: ["9", "10", "8", "7"], correct: 0 },
+  { q: "Why does the reactivity of Group 1 elements increase down the group?", a: ["Increasing nuclear charge", "Decreasing atomic size", "Increasing shielding effect and atomic size", "Increasing ionization energy"], correct: 2 },
+  { q: "What is the oxidation state of oxygen in peroxides?", a: ["-2", "0", "-1", "+2"], correct: 2 },
+  { q: "Which of the following elements shows diagonal relationship with lithium?", a: ["Magnesium", "Sodium", "Calcium", "Beryllium"], correct: 0 },
+  { q: "Which of the following halogens has the highest bond dissociation enthalpy?", a: ["Fluorine", "Chlorine", "Bromine", "Iodine"], correct: 1 },
+  { q: "Which noble gas does not form compounds easily due to its highest ionization energy?", a: ["Neon", "Argon", "Xenon", "Radon"], correct: 0 }
+];
+let hardQuestions = [
+  { q: "Which of the following is the most electronegative element?", a: ["Oxygen", "Fluorine", "Chlorine", "Nitrogen"], correct: 1 },
+  { q: "Which element shows both +1 and +3 oxidation states?", a: ["Sodium", "Boron", "Aluminum", "Potassium"], correct: 2 },
+  { q: "What is the characteristic of inert pair effect?", a: ["Stability of outermost s-electrons", "Reactivity with water", "Atomic radius increase", "Ionization energy decrease"], correct: 0 },
+  { q: "Which is the heaviest noble gas?", a: ["Argon", "Krypton", "Xenon", "Radon"], correct: 3 },
+  { q: "Which group element forms amphoteric oxides?", a: ["Group 13", "Group 14", "Group 1", "Group 18"], correct: 1 },
+  { q: "What is the atomic number of Aluminum?", a: ["12", "13", "14", "15"], correct: 1 },
+  { q: "Which group element has the highest ionization energy?", a: ["Group 1", "Group 13", "Group 17", "Group 18"], correct: 3 },
+  { q: "Which element has the configuration 1s2 2s2 2p6 3s1?", a: ["Sodium", "Magnesium", "Potassium", "Calcium"], correct: 0 },
+  { q: "Which of the following is NOT a characteristic of p-block elements?", a: ["Variable oxidation states", "Form acidic oxides", "Metals and non-metals", "Form basic oxides"], correct: 3 },
+  { q: "What is the general configuration of Group 13 elements?", a: ["ns2np1", "ns2np2", "ns2np3", "ns2np4"], correct: 0 },
+  { q: "Which halogen has the lowest boiling point?", a: ["Fluorine", "Chlorine", "Bromine", "Iodine"], correct: 0 },
+  { q: "Which of the following is used in making semiconductors?", a: ["Boron", "Silicon", "Aluminum", "Sodium"], correct: 1 },
+  { q: "Which of the following elements is a metalloid?", a: ["Carbon", "Phosphorus", "Silicon", "Sulfur"], correct: 2 },
+  { q: "Which is the lightest alkali metal?", a: ["Sodium", "Potassium", "Rubidium", "Lithium"], correct: 3 },
+  { q: "Which is the most reactive halogen?", a: ["Fluorine", "Chlorine", "Bromine", "Iodine"], correct: 0 },
+  { q: "Which element can show a +5 oxidation state?", a: ["Nitrogen", "Phosphorus", "Arsenic", "All of these"], correct: 3 },
+  { q: "Which noble gas forms compounds like XeF4?", a: ["Neon", "Argon", "Xenon", "Krypton"], correct: 2 },
+  { q: "Which group has ns2np5 configuration?", a: ["Group 13", "Group 14", "Group 15", "Group 17"], correct: 3 },
+  { q: "Which element has a stable octet in its atomic form?", a: ["Oxygen", "Fluorine", "Neon", "Chlorine"], correct: 2 },
+  { q: "Which period contains all representative elements?", a: ["2nd", "3rd", "4th", "6th"], correct: 1 },
+  { q: "Which block of the periodic table includes the representative elements?", a: ["s- and p-block", "d-block", "f-block", "None"], correct: 0 },
+  { q: "Which Group 2 element is used in fireworks?", a: ["Magnesium", "Calcium", "Barium", "Strontium"], correct: 2 },
+  { q: "Which Group 17 element is a liquid at room temperature?", a: ["Fluorine", "Chlorine", "Bromine", "Iodine"], correct: 2 },
+  { q: "Which element is used in water purification?", a: ["Bromine", "Iodine", "Fluorine", "Chlorine"], correct: 3 },
+  { q: "Which element is used in light bulbs?", a: ["Helium", "Xenon", "Argon", "Radon"], correct: 2 }
+];
+let questions = [];
+
+    let current = 0;
+    let score = 0;
+    let timer;
+    let timeLeft = 15;
+
+    function selectLevel(level) {
+  document.getElementById("levelSelection").style.display = 'none';
+  document.querySelector('.restart-btn').style.display = 'block';
+  document.getElementById("bgMusic").play();
+  document.getElementById("answers").innerHTML = "";
+  document.getElementById("feedback").innerHTML = "";
+  questions = level === 'hard' ? hardQuestions : easyQuestions;
+  current = 0;
+  score = 0;
+  generateRibbons();
+  showQuestion();
+}
+
+    function showQuestion() {
+      document.getElementById("quiz").classList.add("curl-page");
+      if (current >= questions.length) {
+        clearInterval(timer);
+        document.getElementById("quiz").innerHTML = "<h2>Quiz Completed!</h2>";
+        document.getElementById("score").innerHTML = `Your Score: ${score} / ${questions.length}`;
+        document.getElementById("clapSound").play();
+        showAnswers();
+        showFeedback();
+        document.getElementById("timer").textContent = "";
+        document.getElementById("feedback").innerHTML += `<p style='text-align:center; font-weight:bold; margin-top:20px;'>Made by: Shrey Srivastava, XI-A</p>`;
+        return;
+      }
+      let q = questions[current];
+      document.getElementById("quiz").innerHTML = `
+        <div class="question">
+          <h2>Q${current + 1}: ${q.q}</h2>
+          
+          <div class="options">
+            ${q.a.map((opt, i) => `<button onclick="checkAnswer(${i})">${opt}</button>`).join('')}
+          </div>
+        </div>
+      `;
+      startTimer();
+    }
+
+    function startTimer() {
+      timeLeft = 15;
+      document.getElementById("timer").textContent = `Time left: ${timeLeft}s`;
+      clearInterval(timer);
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").textContent = `Time left: ${timeLeft}s`;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          current++;
+          showQuestion();
+        }
+      }, 1000);
+    }
+
+    function checkAnswer(i) {
+      if (i === questions[current].correct) {
+        score++;
+      }
+      clearInterval(timer);
+      setTimeout(() => {
+        current++;
+        showQuestion();
+      }, 500);
+    }
+
+    function showAnswers() {
+      let html = '<h3>Correct Answers:</h3><ul>';
+      questions.forEach((q, idx) => {
+        html += `<li>Q${idx + 1}: ${q.q} <br><strong>Answer:</strong> ${q.a[q.correct]}</li>`;
+      });
+      html += '</ul>';
+      document.getElementById("answers").innerHTML = html;
+    }
+
+    function showFeedback() {
+      document.getElementById("feedback").innerHTML = `
+        <h3>How did you like the quiz?</h3>
+        <button onclick="alert('Thanks for your feedback: Good')">Good</button>
+        <button onclick="alert('Thanks for your feedback: Excellent')">Excellent</button>
+        <button onclick="alert('Thanks for your feedback: Superb')">Superb</button>
+      `;
+    }
+
+    function restartQuiz() {
+  location.reload();
+}
+
+    function generateRibbons() {
+      for (let i = 0; i < 30; i++) {
+        let ribbon = document.createElement("div");
+        ribbon.classList.add("ribbon");
+        ribbon.style.left = Math.random() * 100 + "%";
+        ribbon.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        ribbon.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        document.body.appendChild(ribbon);
+      }
+    }
+  </script>
+</body>
+</html>
